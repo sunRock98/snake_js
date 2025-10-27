@@ -1,0 +1,45 @@
+name: Ashby Webhook Handler
+
+on:
+    repository_dispatch:
+        types: [ashby-evaluation-trigger]
+
+jobs:
+    run-evaluation:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+            pull-requests: write
+
+        steps:
+            - name: Debug - Print Full Event Data
+              run: |
+                  echo "========================================"
+                  echo "🔍 FULL WEBHOOK PAYLOAD DEBUG INFO"
+                  echo "========================================"
+                  echo ""
+                  echo "Event Action: ${{ github.event.action }}"
+                  echo "Event Type: ${{ github.event_name }}"
+                  echo ""
+                  echo "--- Full github.event object ---"
+                  echo "${{ toJson(github.event) }}" | jq '.' || echo "${{ toJson(github.event) }}"
+                  echo ""
+                  echo "--- Client Payload (if exists) ---"
+                  echo "${{ toJson(github.event.client_payload) }}" | jq '.' || echo "${{ toJson(github.event.client_payload) }}"
+                  echo ""
+                  echo "--- Repository Info ---"
+                  echo "Repo: ${{ github.repository }}"
+                  echo "Ref: ${{ github.ref }}"
+                  echo "SHA: ${{ github.sha }}"
+                  echo "========================================"
+
+            - name: Summary
+              run: |
+                  echo "## 📋 Webhook Debug Complete" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "This workflow received a webhook from Ashby." >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Check the logs above to see the full payload structure.**" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "Once you understand the payload structure, update the workflow to extract the needed fields." >> $GITHUB_STEP_SUMMARY
